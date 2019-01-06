@@ -1,6 +1,5 @@
 package car_scraper;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import org.jsoup.Jsoup;
@@ -14,20 +13,20 @@ public class Car_Scraper
 
     public static void main(String[] args) 
     {
-        List<Car> hermitageToyota = getHermitageToyotaCars(3000,12000);
-        for(Car c: hermitageToyota)
-        {
-            System.out.println(c);
-        }
+          getHermitageToyotaCars(3000, 12000);
     }
     
-    //get hermitage toyota cars in the given price range
+    
+    //get hermitage toyota cars in the given price range using jsoup to parse the html for each used car page.
     public static List<Car> getHermitageToyotaCars(double low, double high)
     {
+        
+        //List<String> hrefs = getHermitageToyotaURLS(wc);
         List<Car> cars = new ArrayList<>();
         try
         {
             Document doc = Jsoup.connect("https://www.hermitagetoyota.com/search/used/tp/").get();
+            String url = getNextHermitageToyotaURL(doc);
             Elements car_wrappers = doc.getElementsByClass("srp_vehicle_wrapper srp_vehicle_item_container");
             
             for(Element e: car_wrappers)
@@ -67,6 +66,18 @@ public class Car_Scraper
         
         return cars;
     }
+    
+    //TODO: what does this do when the last page is reached?
+    //return the url of the next link in the top right corner in hermitage toyota
+    public static String getNextHermitageToyotaURL(Document doc)
+    {
+        
+        Elements page_container = doc.getElementsByClass("search-pagination fl_r");
+        Elements next_li = page_container.get(0).getElementsByClass("next");
+        Elements next_a = next_li.get(0).getElementsByTag("a");
+        return next_a.attr("abs:href");
+    }
+    
     
     //strip unnecessary characters from the price (e.g. $) and convert to double
     //TODO: generalize this for multiple sites, maybe use regex?
