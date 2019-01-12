@@ -13,7 +13,7 @@ public class Car_Scraper
 
     public static void main(String[] args) 
     {
-          List<Car> cars = getHermitageToyotaCars(0, 1200000);
+          List<Car> cars = getHermitageToyotaCars(0, 12000000);
           for(Car c: cars)
           {
               System.out.println(c.toString());
@@ -41,37 +41,22 @@ public class Car_Scraper
         {
             Document doc = Jsoup.connect(url).get();
             
-            Elements car_wrappers = doc.getElementsByClass("srp_vehicle_wrapper srp_vehicle_item_container");
-            for(Element e: car_wrappers)
+            
+            Elements name_spans = doc.getElementsByAttributeValue("itemprop", "name");
+            Elements price_spans = doc.getElementsByAttributeValue("itemprop", "price");
+            if(name_spans.size() != price_spans.size()) return null;
+                
+            for(int i = 0; i < name_spans.size(); i++)
             {
-                //get the name
-                Elements titleBar = e.getElementsByClass("srp_vehicle_titlebar");
-                Elements a = titleBar.get(0).getElementsByTag​("a");
-                String name = a.get(0).html();
+                double price = getNumericPrice(price_spans.get(i).html());
+                if(price < low || price > high) break;
                 
-                //get the smallest price that is either "Retail Price" or "Internet Price" (Sometimes there's a third price representing the different between these).
-                Elements price_container = e.getElementsByClass("veh_pricing_inner_container details-price");
-                if(price_container.isEmpty()) continue; //ignore the car_wrapper if it has no prices
-                Elements dt = price_container.get(0).getElementsByTag("dt");
-                Elements dd = price_container.get(0).getElementsByTag("dd");
+                String date = name_spans.get(i).getElementsByAttributeValue("itemprop", "vehicleModelDate").get(0).html();
+                String brand = name_spans.get(i).getElementsByAttributeValue("itemprop", "brand").get(0).html();
+                String model = name_spans.get(i).getElementsByAttributeValue("itemprop", "model").get(0).html();
+                String config = name_spans.get(i).getElementsByAttributeValue("itemprop", "vehicleConfiguration").get(0).html();
                 
-                
-                double min_price = Double.MAX_VALUE;
-                for(int i = 0; i < dt.size(); i++)
-                {
-                    if(dt.get(i).html().equals("Retail Price") || dt.get(i).html().equals("Internet Price"))
-                    {
-                        double price = getNumericPrice(dd.get(i).html());
-                        if(price < min_price)
-                        {
-                            min_price = price;
-                        }
-                    }
-                }
-                if(min_price >= low && min_price <= high)
-                {
-                    cars.add(new Car(name,min_price));
-                }
+                cars.add(new Car(date + " " + brand + " " + model + " " + config, price));
             }
             
             return getNextHermitageToyotaURL(doc);
@@ -83,15 +68,16 @@ public class Car_Scraper
         
     }
     
-    //TODO: what does this do when the last page is reached?
     //return the url of the next link in the top right corner in hermitage toyota
     public static String getNextHermitageToyotaURL(Document doc)
     {
-        Elements page_container = doc.getElementsByClass("search-pagination fl_r");
-        Elements next_li = page_container.get(0).getElementsByClass("next");
-        if(next_li.isEmpty()) return null; //in case of last page, return null because there isn't a next page.
-        Elements next_a = next_li.get(0).getElementsByTag("a");
-        return next_a.attr("abs:href");
+        Element anchors_div = doc.getElementsByClass("shopping").get(0);
+        Element current_anchor = anchors_div.getElementsByAttributeValue("href", "Javascript:;").get(0);
+        Element next_anchor = current_anchor.nextElementSibling​();
+        if(next_anchor != null)
+            return next_anchor.attr("abs:href");
+        
+        return null;
     }
     
     
