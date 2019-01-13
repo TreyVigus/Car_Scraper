@@ -8,9 +8,9 @@ import org.jsoup.nodes.Document;
 
 public abstract class Dealer 
 {
-    public String url; //url of first page to start search on
-    public List<Car> cars;
-    public Document doc;
+    protected String url; //url of first page to start search on
+    protected List<Car> cars;
+    protected Document doc;
     
     public Dealer(String url)
     {
@@ -27,6 +27,7 @@ public abstract class Dealer
             getCurrentPageCars(low, high);
             url = getNextURL();
         }
+        printCars();
         return cars;
     }
     

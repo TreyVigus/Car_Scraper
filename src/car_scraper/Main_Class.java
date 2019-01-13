@@ -9,7 +9,6 @@ public class Main_Class
     {
         HermitageToyota ht = new HermitageToyota();
         ht.findCars(0, 150000);
-        ht.printCars();
     }
     
 }

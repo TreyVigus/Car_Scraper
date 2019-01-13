@@ -16,11 +16,11 @@ public class HermitageToyota extends Dealer {
     public void getCurrentPageCars(double low, double high)
     {
         super.getCurrentPageCars(low, high);
-        Elements name_spans = doc.getElementsByAttributeValue("itemprop", "name");
         Elements price_spans = doc.getElementsByAttributeValue("itemprop", "price");
-        if (name_spans.size() != price_spans.size()) return;
+        Elements name_spans = doc.getElementsByAttributeValue("itemprop", "name");
+        //if (name_spans.size() != price_spans.size()) return;   had to remove this because page 9 was missing. this doesnt cause an issue because the unpriced entries are always last
         
-        for (int i = 0; i < name_spans.size(); i++) 
+        for (int i = 0; i < price_spans.size(); i++) 
         {
             double price = getNumericPrice(price_spans.get(i).html());
             if (price < low || price > high) 
