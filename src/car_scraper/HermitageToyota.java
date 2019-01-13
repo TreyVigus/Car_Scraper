@@ -39,7 +39,6 @@ public class HermitageToyota extends Dealer {
     }
     
     @Override
-    //return the url of the next link in the top right corner in hermitage toyota
     public String getNextURL()
     {
         Element anchors_div = doc.getElementsByClass("shopping").get(0);

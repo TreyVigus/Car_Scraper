@@ -63,10 +63,12 @@ public abstract class Dealer
     
     public void printCars()
     {
+        System.out.println("Hermitage Toyota Cars: ");
         for(Car c: cars)
         {
             System.out.println(c.toString());
         }
+        System.out.println("");
     }
     
     
